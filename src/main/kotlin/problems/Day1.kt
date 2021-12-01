@@ -15,4 +15,11 @@ class Day1(override val input: String) : Problem {
             .map { pair ->  pair.second > pair.first }
             .count { value -> value }
     }
+
+    override fun runPartTwo(): String {
+        val windowedSum = inputList.windowed(3)
+            .map { sublist -> sublist.sum() }
+        return getNumberOfIncreases(windowedSum)
+            .toString()
+    }
 }
