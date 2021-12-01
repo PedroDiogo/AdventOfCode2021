@@ -1,8 +1,10 @@
-import problems.Problem
+import problems.*
 import java.net.URL
 
 fun main() {
     val problems: List<Problem> = listOf(
+        Day0("problems/day0".asResource().readText()),
+        Day1("problems/day1".asResource().readText())
     )
 
     runProblems(problems)
