@@ -18,11 +18,11 @@ class Day2(override val input: String) : Problem {
     }
 
     private fun runCommands(initialPosition: Position): Position {
-        return inputList.fold(initialPosition) { position, pair ->
-            when (pair.first) {
-                "forward" -> position.goForward(pair.second)
-                "up" -> position.goUp(pair.second)
-                "down" -> position.goDown(pair.second)
+        return inputList.fold(initialPosition) { position, (action, increment) ->
+            when (action) {
+                "forward" -> position.goForward(increment)
+                "up" -> position.goUp(increment)
+                "down" -> position.goDown(increment)
                 else -> position
             }
         }
