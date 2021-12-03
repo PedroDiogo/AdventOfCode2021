@@ -56,7 +56,5 @@ class Day2(override val input: String) : Problem {
         override fun goDown(increment: Int): Position {
             return goUp(-increment)
         }
-
-
     }
 }
