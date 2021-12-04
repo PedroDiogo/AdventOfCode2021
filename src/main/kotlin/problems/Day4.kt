@@ -4,14 +4,14 @@ class Day4(override val input: String) : Problem {
     override val number: Int = 4
 
     private val drawNumbers = input.lines().first().split(",").map { i -> i.toInt() }
-    private val boards = input.split("\n\n").drop(1).map { boardStr -> Board(boardStr) }
+    private val boards = input.split("\n\n").drop(1).map { boardStr -> Board.fromBoardString(boardStr) }
 
     override fun runPartOne(): String {
         var newBoards = boards
         for (number in drawNumbers) {
             newBoards = newBoards.map { board -> board.play(number) }
 
-            val bingoBoards = boards.filter { board -> board.isBingo() }
+            val bingoBoards = newBoards.filter { board -> board.isBingo() }
             if (bingoBoards.isNotEmpty()) {
                 return (bingoBoards.single().unmarkedNumbers().sum() * number).toString()
             }
@@ -19,23 +19,37 @@ class Day4(override val input: String) : Problem {
         return "Not found"
     }
 
-    private class Board(boardStr: String) {
-        private val boardMatrix = convertBoardStrToMatrix(boardStr)
+    override fun runPartTwo(): String {
+        var newBoards = boards
+        var previousRoundBoards = boards
+
+        for (number in drawNumbers) {
+            newBoards = newBoards
+                .map { board -> board.play(number) }
+                .filter { board -> !board.isBingo() }
+
+            if (newBoards.isEmpty()) {
+                return ((previousRoundBoards.single().unmarkedNumbers().sum()-number) * number).toString()
+            }
+            previousRoundBoards = newBoards
+        }
+        return "Not found"
+    }
+
+    private data class Board(val boardMatrix: List<List<Int>>, val playedNumbers: Set<Int>) {
         private val rows = boardMatrix.size
         private val columns = boardMatrix.first().size
-
         private val numbersCoordinates = getNumbersCoordinates(boardMatrix)
-        private val playedNumbers = mutableSetOf<Int>()
 
-        private val numberMarkedNumbersRow = MutableList(rows) { 0 }
-        private val numberMarkedNumbersCol = MutableList(columns) { 0 }
-
-        private fun convertBoardStrToMatrix(boardStr: String): List<List<Int>> {
-            return boardStr.lines().map { line ->
-                line
-                    .split(" ")
-                    .filter { digit -> digit.isNotBlank() }
-                    .map { i -> i.toInt() }
+        companion object {
+            fun fromBoardString(boardStr: String): Board {
+                val boardMatrix = boardStr.lines().map { line ->
+                    line
+                        .split(" ")
+                        .filter { digit -> digit.isNotBlank() }
+                        .map { i -> i.toInt() }
+                }
+                return Board(boardMatrix, setOf())
             }
         }
 
@@ -55,16 +69,22 @@ class Day4(override val input: String) : Problem {
             if (!numbersCoordinates.containsKey(number)) {
                 return this
             }
-            val (row, col) = numbersCoordinates[number]!!
-            playedNumbers.add(number)
-            numberMarkedNumbersRow[row] += 1
-            numberMarkedNumbersCol[col] += 1
-            return this
+            val newBoard = this.copy(playedNumbers = playedNumbers + number)
+            return newBoard
         }
 
         fun isBingo(): Boolean {
-            return numberMarkedNumbersRow.any { markedNumbers -> markedNumbers == rows }
-                .or(numberMarkedNumbersCol.any { markedNumbers -> markedNumbers == columns })
+            val playedCoordinates = playedNumbers.map { playedNumber -> numbersCoordinates[playedNumber]!! }
+            val bingoOnRows = playedCoordinates
+                .groupingBy { (row, _) -> row }
+                .eachCount()
+                .any { (_, numberOfMarkedNumbers) -> numberOfMarkedNumbers == rows }
+            val bingoOnColumns = playedNumbers.map { numbersCoordinates[it]!! }
+                .groupingBy { (_, col) -> col }
+                .eachCount()
+                .any { (_, numberOfMarkedNumbers) -> numberOfMarkedNumbers == columns }
+
+            return bingoOnRows.or(bingoOnColumns)
         }
     }
 }
