@@ -7,7 +7,8 @@ fun main() {
         Day1("problems/day1".asResource().readText()),
         Day2("problems/day2".asResource().readText()),
         Day3("problems/day3".asResource().readText()),
-        Day4("problems/day4".asResource().readText())
+        Day4("problems/day4".asResource().readText()),
+        Day5("problems/day5".asResource().readText())
     )
 
     runProblems(problems)
