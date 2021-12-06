@@ -15,5 +15,16 @@ internal class Day6Test {
             .replace("|", "\n")
         assertEquals(expected, Day6(problemInput).runPartOne())
     }
+
+    @ParameterizedTest
+    @CsvSource(
+        "3;4;3;1;2,26984457539"
+    )
+    fun runPartTwo(input: String, expected: String) {
+        val problemInput = input
+            .replace(";",",")
+            .replace("|", "\n")
+        assertEquals(expected, Day6(problemInput).runPartTwo())
+    }
 }
 

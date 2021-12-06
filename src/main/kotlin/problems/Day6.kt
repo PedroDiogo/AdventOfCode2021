@@ -5,11 +5,11 @@ class Day6(override val input: String) : Problem {
     private val fishAges = input.split(",").map { i -> i.toInt() }
 
     override fun runPartOne(): String {
-        var numberOfFishByAge = getNumberOfFishByAge(fishAges)
-        repeat(80) {
-            numberOfFishByAge = runOneDay(numberOfFishByAge)
-        }
-        return numberOfFishByAge.sum().toString()
+        return runMultipleDays(80, fishAges).toString()
+    }
+
+    override fun runPartTwo(): String {
+        return runMultipleDays(256, fishAges).toString()
     }
 
     private fun getNumberOfFishByAge(ageList: List<Int>): Array<Int> {
@@ -23,7 +23,18 @@ class Day6(override val input: String) : Problem {
             }
     }
 
-    private fun runOneDay(fishByAge: Array<Int>): Array<Int> {
+    private fun runMultipleDays(days: Int, ageList: List<Int>): Long {
+        var numberOfFishByAge = getNumberOfFishByAge(ageList)
+            .map { i -> i.toLong() }
+            .toTypedArray()
+
+        repeat(days) {
+            numberOfFishByAge = runOneDay(numberOfFishByAge)
+        }
+        return numberOfFishByAge.sum()
+    }
+
+    private fun runOneDay(fishByAge: Array<Long>): Array<Long> {
         val first6Days = fishByAge.slice(1..6)
         val day6 = fishByAge[0] + fishByAge[7]
         val day7 = fishByAge[8]
