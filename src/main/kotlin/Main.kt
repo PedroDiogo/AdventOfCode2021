@@ -9,7 +9,7 @@ fun main() {
         Day3("problems/day3".asResource().readText()),
         Day4("problems/day4".asResource().readText()),
         Day5("problems/day5".asResource().readText()),
-//        Day6("problems/day6".asResource().readText()),
+        Day6("problems/day6".asResource().readText()),
 //        Day7("problems/day7".asResource().readText()),
 //        Day8("problems/day8".asResource().readText()),
 //        Day9("problems/day9".asResource().readText()),
