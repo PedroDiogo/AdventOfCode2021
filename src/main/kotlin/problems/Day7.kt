@@ -22,21 +22,9 @@ class Day7(override val input: String) : Problem {
     }
 
     override fun runPartTwo(): String {
-        val distinctSortedCrabPositions = crabPositions.distinct().sorted()
-
-        val result = distinctSortedCrabPositions.map { toPosition ->
-            calculateComplexFuel(crabPositions, toPosition)
-        }
-        val minimumResult = result.minOf { fuel -> fuel }
-        val minimumResultIndex = result.indexOf(minimumResult)
-
-        val minimumNeighbours =
-            distinctSortedCrabPositions[minimumResultIndex - 1]..distinctSortedCrabPositions[minimumResultIndex + 1]
-
-        return minimumNeighbours
-            .map { toPosition ->
-                calculateComplexFuel(crabPositions, toPosition)
-            }.minOf { fuel -> fuel }
+        val average = crabPositions.average()
+        return ((average-1).toInt()..(average+1).toInt())
+            .map { position -> calculateComplexFuel(crabPositions, position) }.minOf { it }
             .toString()
     }
 
