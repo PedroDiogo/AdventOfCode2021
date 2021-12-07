@@ -15,5 +15,16 @@ internal class Day7Test {
             .replace("|", "\n")
         assertEquals(expected, Day7(problemInput).runPartOne())
     }
+
+    @ParameterizedTest
+    @CsvSource(
+        "16;1;2;0;4;2;7;1;2;14,168"
+    )
+    fun runPartTwo(input: String, expected: String) {
+        val problemInput = input
+            .replace(";",",")
+            .replace("|", "\n")
+        assertEquals(expected, Day7(problemInput).runPartTwo())
+    }
 }
 
