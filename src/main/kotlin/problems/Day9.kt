@@ -11,6 +11,16 @@ class Day9(override val input: String) : Problem {
             .toString()
     }
 
+    override fun runPartTwo(): String {
+        return board
+            .basins()
+            .map { basin -> basin.size }
+            .sortedDescending()
+            .take(3)
+            .fold(1) { mul, i -> mul * i }
+            .toString()
+    }
+
     data class Board(val board: List<List<Point>>) {
         companion object {
             fun fromStr(input: String): Board {
@@ -27,7 +37,34 @@ class Day9(override val input: String) : Problem {
         private val height = board.size
 
         fun localMinima(): List<Point> {
-            return board.flatten().filter { point -> neighbours(point).all { neighbour -> neighbour > point } }
+            return board
+                .flatten()
+                .filter { point ->
+                    neighbours(point)
+                        .all { neighbour -> neighbour > point }
+                }
+        }
+
+        fun basins(): Set<Set<Point>> {
+            return localMinima()
+                .map { point -> basin(point) }
+                .toSet()
+        }
+
+        private fun basin(startingPoint: Point): Set<Point> {
+            val toVisit = mutableListOf(startingPoint)
+            val visited = mutableSetOf<Point>()
+
+            while (toVisit.isNotEmpty()) {
+                val point = toVisit.removeAt(0)
+                toVisit.addAll(neighbours(point)
+                    .filter { neighbour -> neighbour.height != 9 }
+                    .filter { neighbour -> !visited.contains(neighbour) }
+                )
+
+                visited.add(point)
+            }
+            return visited
         }
 
         private fun neighbours(point: Point): List<Point> {
