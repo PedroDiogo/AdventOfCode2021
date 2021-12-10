@@ -19,3 +19,4 @@ mvn clean compile exec:java
 |      7 | :star: | :star: | 
 |      8 | :star: | :star: | 
 |      9 | :star: | :star: | 
+|     10 | :star: | | 
