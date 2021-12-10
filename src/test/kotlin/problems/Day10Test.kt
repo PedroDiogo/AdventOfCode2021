@@ -14,5 +14,15 @@ internal class Day10Test {
             .replace("%", "\n")
         assertEquals(expected, Day10(problemInput).runPartOne())
     }
+
+    @ParameterizedTest
+    @CsvSource(
+        "[({(<(())[]>[[{[]{<()<>>%[(()[<>])]({[<{<<[]>>(%{([(<{}[<>[]}>{[]{[(<()>%(((({<>}<{<{<>}{[]{[]{}%[[<[([]))<([[{}[[()]]]%[{[{({}]{}}([{[{{{}}([]%{<[[]]>}<{[{[{[]{()[[[]%[<(<(<(<{}))><([]([]()%<{([([[(<>()){}]>(<<{{%<{([{{}}[<[[[<>{}]]]>[]], 288957"
+    )
+    fun runPartTwo(input: String, expected: String) {
+        val problemInput = input
+            .replace("%", "\n")
+        assertEquals(expected, Day10(problemInput).runPartTwo())
+    }
 }
 
