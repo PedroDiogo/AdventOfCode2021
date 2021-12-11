@@ -2,15 +2,25 @@ package problems
 
 class Day11(override val input: String) : Problem {
     override val number: Int = 11
-    private val board = Board.fromStr(input)
 
     override fun runPartOne(): String {
-        val currentBoard = board.copy()
+        val currentBoard = Board.fromStr(input)
         var flashes = 0
-        (1 .. 100).forEach { step ->
+        repeat(100) {
             flashes += currentBoard.runStep()
         }
         return flashes.toString()
+    }
+
+    override fun runPartTwo(): String {
+        val currentBoard = Board.fromStr(input)
+        var step = 0
+        while (true) {
+            step++
+            val flashes = currentBoard.runStep()
+            if (flashes == currentBoard.width * currentBoard.height)
+                return step.toString()
+        }
     }
 
     data class Board(val board: MutableList<MutableList<Int>>) {
@@ -26,8 +36,8 @@ class Day11(override val input: String) : Problem {
             }
         }
 
-        private val width = board.first().size
-        private val height = board.size
+        val width = board.first().size
+        val height = board.size
 
         fun runStep(): Int {
             val toVisit = mutableListOf<Pair<Int,Int>>()
@@ -57,9 +67,7 @@ class Day11(override val input: String) : Problem {
                             toVisit.add(0, neighbour)
                         }
                 }
-
                 visited.forEach { (m,n) -> board[m][n] = 0 }
-
             }
 
             return flashes
