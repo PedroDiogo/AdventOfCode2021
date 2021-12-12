@@ -16,5 +16,15 @@ internal class Day12Test {
             .replace("%", "\n")
         assertEquals(expected, Day12(problemInput).runPartOne())
     }
+
+    @ParameterizedTest
+    @CsvSource(
+        "start-A%start-b%A-c%A-b%b-d%A-end%b-end,36",
+    )
+    fun runPartTwo(input: String, expected: String) {
+        val problemInput = input
+            .replace("%", "\n")
+        assertEquals(expected, Day12(problemInput).runPartTwo())
+    }
 }
 
