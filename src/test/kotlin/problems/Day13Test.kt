@@ -18,12 +18,14 @@ internal class Day13Test {
 
     @ParameterizedTest
     @CsvSource(
-        "start-A%start-b%A-c%A-b%b-d%A-end%b-end,36",
+        "6;10%0;14%9;10%0;3%10;4%4;11%6;0%6;12%4;1%0;13%10;12%3;4%3;0%8;4%1;10%2;14%8;10%9;0%%fold along y=7%fold along x=5,█████%█   █%█   █%█   █%█████",
     )
-    fun runPartTwo(input: String, expected: String) {
+    fun runPartTwo(input: String, expectedInline: String) {
         val problemInput = input
+            .replace(";", ",")
             .replace("%", "\n")
-        assertEquals(expected, Day12(problemInput).runPartTwo())
+        val expected = expectedInline
+            .replace("%", "\n")
+        assertEquals(expected, Day13(problemInput).runPartTwo())
     }
 }
-

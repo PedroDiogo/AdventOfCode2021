@@ -23,6 +23,13 @@ class Day13(override val input: String) : Problem {
             .toString()
     }
 
+    override fun runPartTwo(): String {
+        val imagePoints = folds.fold(dots) { dots, fold ->
+            fold(dots, fold)
+        }
+        return printPoints(imagePoints)
+    }
+
     private fun fold(points: Set<Pair<Int, Int>>, fold: Pair<String, Int>): Set<Pair<Int, Int>> {
         return when (fold.first) {
             "y" -> foldVertical(points, fold.second)
@@ -46,5 +53,17 @@ class Day13(override val input: String) : Problem {
             .map { (x, y) -> Pair(2 * foldPosition - x, y) }
 
         return left.toSet() + newRight.toSet()
+    }
+
+    private fun printPoints(points: Set<Pair<Int, Int>>): String {
+        val maxX = points.maxOf { (x, _) -> x }
+        val maxY = points.maxOf { (_, y) -> y }
+
+        val image = MutableList(maxY + 1) { MutableList(maxX + 1) { ' ' } }
+        for ((x, y) in points) {
+            image[y][x] = '█'
+        }
+
+        return image.joinToString(separator = "\n") { line -> line.joinToString(separator = "") }
     }
 }
