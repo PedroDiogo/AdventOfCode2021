@@ -1,5 +1,7 @@
 import problems.*
 import java.net.URL
+import java.time.Duration
+import java.time.Instant
 
 fun main() {
     val problems: List<Problem> = listOf(
@@ -36,13 +38,18 @@ fun main() {
 
 fun runProblems(problems: List<Problem>) {
     for (day in problems) {
+        val beforeStep1 = Instant.now()
+        val partOne = day.runPartOne()
+        val afterStep1 = Instant.now()
         println("Day ${day.number}")
-        println("Part one:\n" +
-                day.runPartOne())
+        println("Part one (took ${Duration.between(beforeStep1, afterStep1).toMillis()} ms):\n" +
+                partOne)
 
+        val beforeStep2 = Instant.now()
         val partTwo = day.runPartTwo()
+        val afterStep2 = Instant.now()
         if (partTwo.isNotEmpty())
-            println("Part two:\n" +
+            println("Part two (took ${Duration.between(beforeStep2, afterStep2).toMillis()} ms):\n" +
                     partTwo)
         println("===============================")
     }
