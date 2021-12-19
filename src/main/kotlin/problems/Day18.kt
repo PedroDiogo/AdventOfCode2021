@@ -5,14 +5,27 @@ import kotlin.math.floor
 
 class Day18(override val input: String) : Problem {
     override val number: Int = 18
+    private val numbers = input.lines().map { SnailfishNumber.fromString(it) }
 
     override fun runPartOne(): String {
-        return input
-            .lines()
-            .map { SnailfishNumber.fromString(it) }
+        return numbers
             .reduce { acc, snailfishNumber -> (acc + snailfishNumber).reduce() }
             .magnitude()
             .toString()
+    }
+
+    override fun runPartTwo(): String {
+        var maxMagnitude = 0L
+        for (n1 in (numbers.indices)) {
+            for (n2 in (n1 until numbers.size)) {
+                maxMagnitude = listOf(
+                    (numbers[n1] + numbers[n2]).reduce().magnitude(),
+                    (numbers[n2] + numbers[n1]).reduce().magnitude(),
+                    maxMagnitude
+                ).maxOf { it }
+            }
+        }
+        return maxMagnitude.toString()
     }
 
     data class SnailfishNumber(val left: SnailfishElement, val right: SnailfishElement) {
@@ -56,7 +69,6 @@ class Day18(override val input: String) : Problem {
                 if (currentNumber != previousNumber) {
                     continue
                 }
-                previousNumber = currentNumber
                 currentNumber = currentNumber.split()
             }
             return currentNumber
@@ -84,12 +96,14 @@ class Day18(override val input: String) : Problem {
             val explodedPairIdxs = findFirstExplodedPair() ?: return this
 
             val (leftIdx, rightIdx) = explodedPairIdxs
-            val (leftRemainder, rightRemainder) = this.toString().substring(leftIdx + 1, rightIdx).split(",")
+            val thisStr = this.toString()
+            val (leftRemainder, rightRemainder) = thisStr.substring(leftIdx + 1, rightIdx).split(",")
                 .map { it.toLong() }
-            val leftString = this.toString().substring(0, leftIdx)
-            val rightString = this.toString().substring(rightIdx + 1)
+            val leftString = thisStr.substring(0, leftIdx)
+            val rightString = thisStr.substring(rightIdx + 1)
 
-            var findPairLeft = """\d+""".toRegex().find(leftString)
+            val digitRegex = """\d+""".toRegex()
+            var findPairLeft = digitRegex.find(leftString)
             val newLeftString = if (findPairLeft != null) {
                 var value = findPairLeft.value
                 while (findPairLeft != null) {
@@ -102,7 +116,7 @@ class Day18(override val input: String) : Problem {
                 leftString
             }
 
-            val findPairRight = """\d+""".toRegex().find(rightString)
+            val findPairRight = digitRegex.find(rightString)
             val newRightString = if (findPairRight != null) {
                 val newValue = (findPairRight.value.toLong() + rightRemainder).toString()
                 rightString.replaceFirst(findPairRight.value, newValue)
