@@ -23,7 +23,7 @@ fun main() {
         Day15("problems/day15".asResource().readText()),
         Day16("problems/day16".asResource().readText()),
         Day17("problems/day17".asResource().readText()),
-//        Day18("problems/day18".asResource().readText()),
+        Day18("problems/day18".asResource().readText()),
 //        Day19("problems/day19".asResource().readText()),
 //        Day20("problems/day20".asResource().readText()),
 //        Day21("problems/day21".asResource().readText()),
