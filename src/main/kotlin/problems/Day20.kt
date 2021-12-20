@@ -7,43 +7,43 @@ class Day20(override val input: String) : Problem {
     private val pixelToBinary = mapOf('.' to '0', LIT to '1')
 
     override fun runPartOne(): String {
+        return runAlgorithm(2)
+    }
+
+    override fun runPartTwo(): String {
+        return runAlgorithm(50)
+    }
+
+    private fun runAlgorithm(runs: Int): String {
         val inputImage = input
             .split("\n\n")[1]
             .lines()
             .map { it.toCharArray().toList() }
 
-        val runs = 2
-        val padding = runs + 1
-        val newInputImage =
-            List(inputImage.size + (2 * padding)) { MutableList(inputImage.first().size + (2 * padding)) { '.' } }
-        for (m in inputImage.indices) {
-            for (n in inputImage.first().indices) {
-                newInputImage[m + padding][n + padding] = inputImage[m][n]
+        return (1..runs).fold(inputImage) { acc, run ->
+            val empty = when {
+                algorithm[0] == '.' -> '.'
+                run % 2 == 1 -> '.'
+                else -> '#'
             }
+            acc.applyImageEnhancementAlgorithm(empty)
         }
-
-        return newInputImage
-            .applyImageEnhancementAlgorithm()
-            .applyImageEnhancementAlgorithm()
-            .drop(1)
-            .dropLast(1)
-            .map { it.drop(1).dropLast(1) }
             .sumOf { line -> line.count { it == LIT } }
             .toString()
     }
 
-    private fun List<List<Char>>.applyImageEnhancementAlgorithm(): List<List<Char>> {
-        val newList = List(this.size) { MutableList(this.first().size) { '.' } }
+    private fun List<List<Char>>.applyImageEnhancementAlgorithm(empty: Char = '.'): List<MutableList<Char>> {
+        val newList = List(this.size + 2) { MutableList(this.first().size + 2) { empty } }
 
         for (m in newList.indices) {
             for (n in newList.first().indices) {
                 val algorithmIdx = Pair(m, n)
                     .neighbours()
                     .map { (nm, nn) ->
-                        val inBounds = (nm in (0 until this.size)) && (nn in (0 until this.first().size))
+                        val inBounds = ((nm - 1) in (0 until this.size)) && ((nn - 1) in (0 until this.first().size))
                         when (inBounds) {
-                            false -> '.'
-                            else -> this[nm][nn]
+                            false -> empty
+                            else -> this[nm - 1][nn - 1]
                         }
                     }
                     .map { pixelToBinary[it]!! }
