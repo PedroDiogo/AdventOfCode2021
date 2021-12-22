@@ -13,33 +13,97 @@ class Day22(override val input: String) : Problem {
         }
 
     override fun runPartOne(): String {
-        val cube = List(101) { List(101) { MutableList(101) { false } } }
         val intervalsInRange = intervals.filter { interval -> interval.second.all { axis -> axis in (-50..50) } }
 
-        for (interval in intervalsInRange) {
-            for (x in interval.second[0]) {
-                for (y in interval.second[1]) {
-                    for (z in interval.second[2]) {
-                        cube[x+50][y+50][z+50] = when(interval.first) {
-                            "on" -> true
-                            else -> false
-                        }
-                    }
+        return onCubes(intervalsInRange)
+            .sumOf { it[0].count() * it[1].count() * it[2].count() }
+            .toString()
+    }
+
+    override fun runPartTwo(): String {
+        return onCubes(intervals)
+            .sumOf { 1L * it[0].count() * it[1].count() * it[2].count() }
+            .toString()
+    }
+
+
+    private fun onCubes(inputs: List<Pair<String, List<IntRange>>>): List<List<IntRange>> {
+        val currentIntervals = mutableListOf<List<IntRange>>()
+        val toVisit = inputs.toMutableList()
+
+        while (toVisit.isNotEmpty()) {
+            val (type, interval) = toVisit.removeAt(0)
+            val firstOverlap = currentIntervals.firstOrNull { currentInterval ->
+                currentInterval[0] in interval[0]
+                        && currentInterval[1] in interval[1]
+                        && currentInterval[2] in interval[2]
+            }
+
+            if (firstOverlap != null) {
+                val intervalSplitByOverlapPlanes = splitCubeByCubesPlanes(interval, firstOverlap)
+                if (type == "on") {
+                    val nonOverlappingCubes =
+                        intervalSplitByOverlapPlanes.filter { !(it[0] in firstOverlap[0] && it[1] in firstOverlap[1] && it[2] in firstOverlap[2]) }
+                    toVisit.addAll(0, nonOverlappingCubes.map { Pair(type, it) })
+                } else {
+                    val overlapSplitByIntervalPlanes = splitCubeByCubesPlanes(firstOverlap, interval)
+                    val overlapIntervalMinusOff = overlapSplitByIntervalPlanes - intervalSplitByOverlapPlanes
+                    currentIntervals.remove(firstOverlap)
+                    currentIntervals.addAll(overlapIntervalMinusOff)
+                    toVisit.add(0, Pair(type, interval))
+                }
+            } else {
+                if (type == "on") {
+                    currentIntervals += interval
                 }
             }
         }
-
-        return cube.sumOf { x ->
-            x.sumOf { y ->
-                y.count { it }
-            }
-        }.toString()
+        return currentIntervals
     }
 
-    operator fun IntRange.contains(other: IntRange) : Boolean {
+    private fun splitCubeByCubesPlanes(cube: List<IntRange>, planesCube: List<IntRange>): List<List<IntRange>> {
+        return splitX(cube, planesCube[0].first - 1)
+            .flatMap { splitX(it, planesCube[0].last) }
+            .flatMap { splitY(it, planesCube[1].first - 1) }
+            .flatMap { splitY(it, planesCube[1].last) }
+            .flatMap { splitZ(it, planesCube[2].first - 1) }
+            .flatMap { splitZ(it, planesCube[2].last) }
+    }
+
+    private fun splitX(cube: List<IntRange>, x: Int): List<List<IntRange>> {
+        if (x !in cube[0]) {
+            return listOf(cube)
+        }
+
+        val splitX = listOf(cube[0].first..x, (x + 1)..cube[0].last)
+        return splitX
+            .filter { range -> !range.isEmpty() }
+            .map { range -> listOf(range, cube[1], cube[2]) }
+    }
+
+    private fun splitY(cube: List<IntRange>, y: Int): List<List<IntRange>> {
+        if (y !in cube[1]) {
+            return listOf(cube)
+        }
+
+        val splitY = listOf(cube[1].first..y, (y + 1)..cube[1].last)
+        return splitY
+            .filter { range -> !range.isEmpty() }
+            .map { range -> listOf(cube[0], range, cube[2]) }
+    }
+
+    private fun splitZ(cube: List<IntRange>, z: Int): List<List<IntRange>> {
+        if (z !in cube[2]) {
+            return listOf(cube)
+        }
+
+        val splitZ = listOf(cube[2].first..z, (z + 1)..cube[2].last)
+        return splitZ
+            .filter { range -> !range.isEmpty() }
+            .map { range -> listOf(cube[0], cube[1], range) }
+    }
+
+    operator fun IntRange.contains(other: IntRange): Boolean {
         return this.first <= other.last && other.first <= this.last
     }
 }
-
-// On -> Intersects? No. -> Add as new range ; Yes -> Add intersection
-// Off -> Intersects? No -> Do nothing; Yes -> Split all intersections
