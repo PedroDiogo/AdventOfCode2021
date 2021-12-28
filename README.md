@@ -32,3 +32,4 @@ mvn clean compile exec:java
 |     20 | :star: | :star: | 
 |     21 | :star: | | 
 |     22 | :star: | :star: | 
+|     23 | :star: | :star: | 
