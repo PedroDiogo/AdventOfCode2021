@@ -30,7 +30,7 @@ mvn clean compile exec:java
 |     18 | :star: | :star: | 
 |     19 | | | 
 |     20 | :star: | :star: | 
-|     21 | :star: | | 
+|     21 | :star: | :star: | 
 |     22 | :star: | :star: | 
 |     23 | :star: | :star: | 
 |     24 | :star: | :star: | 
