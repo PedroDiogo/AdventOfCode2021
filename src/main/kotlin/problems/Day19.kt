@@ -1,10 +1,7 @@
 package problems
 
 import java.util.*
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.roundToInt
-import kotlin.math.sin
+import kotlin.math.*
 
 typealias Point = Triple<Int, Int, Int>
 typealias Distance = Triple<Int, Int, Int>
@@ -35,22 +32,9 @@ class Day19(override val input: String) : Problem {
         }
     }
 
-    override fun runPartOne(): String {
-        val connections = mutableMapOf<Int, MutableMap<Int, Pair<Point, (Point) -> Point>>>()
-        for (scannerOne in 0..numberOfScanners) {
-            for (scannerTwo in scannerOne + 1..numberOfScanners) {
-                val overlap = overlapScanners(scannerOne, scannerTwo)
-                if (overlap != null) {
-                    println("Scanner $scannerOne overlaps with scanner $scannerTwo.")
-                    println("Overlap ${overlap.second}")
-                    connections.computeIfAbsent(scannerOne) { mutableMapOf() }
-                    connections.computeIfAbsent(scannerTwo) { mutableMapOf() }
-                    connections[scannerOne]!![scannerTwo] = overlap
-                    connections[scannerTwo]!![scannerOne] = overlapScanners(scannerTwo, scannerOne)!!
-                }
-            }
-        }
+    private val connections:MutableMap<Int, MutableMap<Int, Pair<Point, (Point) -> Point>>> by lazy {findScannerConnections()}
 
+    override fun runPartOne(): String {
         val connectionGraph = connections.map { (key, values) -> key to values.keys.toList() }.toMap()
 
         val prev = dijkstra(connectionGraph, 0)
@@ -58,7 +42,7 @@ class Day19(override val input: String) : Problem {
         beacons.addAll(beaconsSeenFromScanner[0]!!)
 
         for (source in 1..numberOfScanners) {
-            val pathToRoot = path(prev, 0, source).reversed()
+            val pathToRoot = path(prev, source).reversed()
 
             val toBeacons = pathToRoot.zipWithNext().fold(beaconsSeenFromScanner[source]!!) { acc, (iterFrom, iterTo) ->
                 val (iterOrigin, iterRotationFunction) = connections[iterTo]!![iterFrom]!!
@@ -68,6 +52,56 @@ class Day19(override val input: String) : Problem {
         }
 
         return beacons.size.toString()
+    }
+
+    override fun runPartTwo(): String {
+        val connectionGraph = connections.map { (key, values) -> key to values.keys.toList() }.toMap()
+
+        val prev = dijkstra(connectionGraph, 0)
+        val scannersOrigins = mutableMapOf<Int, Point>()
+        scannersOrigins[0] = Point(0,0,0)
+
+        for (source in 1..numberOfScanners) {
+            val pathToRoot = path(prev, source).reversed()
+
+            val toBeacons = pathToRoot.zipWithNext().fold(Point(0,0,0)) { acc, (iterFrom, iterTo) ->
+                val (iterOrigin, iterRotationFunction) = connections[iterTo]!![iterFrom]!!
+                translateCoordinates(listOf(acc), iterOrigin, iterRotationFunction).single()
+            }
+            scannersOrigins[source] = toBeacons
+        }
+
+        var maxDistance = -1
+        for (scannerOne in 0..numberOfScanners) {
+            for (scannerTwo in scannerOne+1..numberOfScanners) {
+                val distance = scannersOrigins[scannerOne]!!.manhattanDistance(scannersOrigins[scannerTwo]!!)
+                if (distance > maxDistance) {
+                    maxDistance = distance
+                }
+            }
+        }
+
+        return maxDistance.toString()
+    }
+
+    private fun findScannerConnections(): MutableMap<Int, MutableMap<Int, Pair<Point, (Point) -> Point>>> {
+        val connections = mutableMapOf<Int, MutableMap<Int, Pair<Point, (Point) -> Point>>>()
+        (0..numberOfScanners).forEach{scanner ->
+            connections[scanner] = mutableMapOf()
+        }
+
+        for (scannerOne in 0..numberOfScanners) {
+            for (scannerTwo in scannerOne + 1..numberOfScanners) {
+                val overlap = overlapScanners(scannerOne, scannerTwo)
+                if (overlap != null) {
+                    connections.computeIfAbsent(scannerOne) { mutableMapOf() }
+                    connections.computeIfAbsent(scannerTwo) { mutableMapOf() }
+                    connections[scannerOne]!![scannerTwo] = overlap
+                    connections[scannerTwo]!![scannerOne] = overlapScanners(scannerTwo, scannerOne)!!
+                }
+            }
+        }
+        return connections
     }
 
     fun dijkstra(connections: Map<Int, List<Int>>, source: Int): MutableList<Int> {
@@ -96,7 +130,7 @@ class Day19(override val input: String) : Problem {
         return prev
     }
 
-    fun path(prev: List<Int>, from: Int, to: Int): List<Int> {
+    fun path(prev: List<Int>, to: Int): List<Int> {
         val path = mutableListOf<Int>()
         var current = to
         if (prev[current] != -1) {
@@ -186,5 +220,10 @@ class Day19(override val input: String) : Problem {
         val newY = (x * sin(angle) + y * cos(angle)).roundToInt()
         val newZ = z
         return Triple(newX, newY, newZ)
+    }
+
+    fun Point.manhattanDistance(other: Point) : Int {
+        val difference = this-other
+        return difference.first.absoluteValue + difference.second.absoluteValue + difference.third.absoluteValue
     }
 }
